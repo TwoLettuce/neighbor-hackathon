@@ -1,6 +1,6 @@
-# Neighbor
+# Job'n'Weave
 
-Neighbor finds upcoming events where job seekers can build useful professional relationships. It ingests events ahead of time, normalizes and classifies them, stores them in PostGIS, then ranks local and interactive virtual events by career fit and networking potential.
+Job'n'Weave finds upcoming events where job seekers can build useful professional relationships. It ingests events ahead of time, normalizes and classifies them, stores them in PostGIS, then ranks local and interactive virtual events by career fit and networking potential.
 
 ## Stack
 
