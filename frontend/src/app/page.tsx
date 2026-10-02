@@ -24,6 +24,10 @@ const formatOptions = [
   { value: "LIVE_VIRTUAL", label: "Live virtual networking" },
 ];
 
+const apiBaseUrl = (
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"
+).replace(/\/+$/, "");
+
 function Icon({ name }: { name: "pin" | "calendar" | "arrow" | "people" }) {
   const paths = {
     pin: (
@@ -97,7 +101,7 @@ export default function Home() {
     formats.forEach((format) => params.append("formats", format));
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/events/search/?${params}`,
+        `${apiBaseUrl}/api/events/search/?${params}`,
       );
       const payload = await response.json();
       if (!response.ok) {

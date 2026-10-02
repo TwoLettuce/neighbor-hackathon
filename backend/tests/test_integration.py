@@ -4,6 +4,13 @@ from events.models import Event, EventSourceRecord
 from rest_framework.test import APIClient
 
 
+def test_health_endpoint() -> None:
+    response = APIClient().get("/api/health/")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 @pytest.mark.django_db
 def test_seed_ingestion_is_idempotent() -> None:
     call_command("ingest_events", provider="seed")

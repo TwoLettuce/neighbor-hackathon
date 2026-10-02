@@ -1,3 +1,4 @@
+from django.http import HttpRequest, JsonResponse
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.response import Response
@@ -11,6 +12,10 @@ from events.serializers import (
 )
 from events.services.geocoding import FixtureGeocodingService, GeocodingError
 from events.services.search import EventSearchService
+
+
+def health_check(request: HttpRequest) -> JsonResponse:
+    return JsonResponse({"status": "ok"})
 
 
 class EventSearchView(APIView):
