@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f7f4;
+  --foreground: #17252b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ink: #17252b;
+  --color-teal: #176b64;
+  --color-coral: #e5654c;
+  --color-mint: #9fd9ca;
+  --font-sans: var(--font-geist-sans);
+  --font-serif: Georgia, "Times New Roman", serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field-input {
+  min-height: 3rem;
+  width: 100%;
+  border: 1px solid #dbe2e6;
+  border-radius: 0.75rem;
+  background: #fbfcfb;
+  padding: 0 0.9rem;
+  color: #17252b;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  outline: none;
+  text-transform: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.field-input:focus {
+  border-color: #176b64;
+  box-shadow: 0 0 0 3px rgb(23 107 100 / 10%);
+}
+
+.eyebrow {
+  margin-bottom: 0.45rem;
+  color: #176b64;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.tag {
+  border-radius: 999px;
+  padding: 0.32rem 0.62rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

@@ -1,0 +1,14 @@
+Django>=5.1,<5.3
+djangorestframework>=3.15,<3.17
+drf-spectacular>=0.28,<0.29
+django-cors-headers>=4.4,<5
+psycopg[binary]>=3.2,<4
+pydantic>=2.9,<3
+requests>=2.32,<3
+icalendar>=6,<7
+python-dotenv>=1.0,<2
+
+# Development and test
+pytest>=8,<9
+pytest-django>=4.9,<5
+ruff>=0.8,<1
