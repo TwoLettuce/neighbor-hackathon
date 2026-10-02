@@ -19,12 +19,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser) -> None:
         parser.add_argument(
             "--provider",
-            default="seed",
-            choices=["seed", "ical", "ticketmaster", "meetup", "eventbrite", "luma", "handshake"],
-        )
-        parser.add_argument(
-            "--feed-url",
-            help="Preconfigured public HTTP(S) iCal URL (required for --provider ical)",
+            default="ticketmaster",
+            choices=["ticketmaster"],
         )
         parser.add_argument(
             "--city",
@@ -40,27 +36,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options) -> None:
-        provider_name = options["provider"]
-        if provider_name == "seed":
-            provider = SeedEventProvider()
-        elif provider_name == "ical":
-            if not options["feed_url"]:
-                raise CommandError("--feed-url is required for the iCal provider")
-            provider = ICalProvider(options["feed_url"])
-        elif provider_name == "ticketmaster":
-            provider = TicketmasterProvider(
-                city=options.get("city"),
-                state_code=options.get("state"),
-                keyword=options.get("keyword"),
-            )
-        else:
-            provider = {
-                "meetup": MeetupProvider,
-                "eventbrite": EventbriteProvider,
-                "luma": LumaProvider,
-                "handshake": HandshakeProvider,
-            }[provider_name]()
-
+        provider = TicketmasterProvider(
+            city=options.get("city"),
+            state_code=options.get("state"),
+            keyword=options.get("keyword"),
+        )
         try:
             stats = EventIngestionPipeline().ingest(provider)
         except ProviderUnavailableError as exc:
