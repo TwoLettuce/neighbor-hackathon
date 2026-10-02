@@ -166,11 +166,11 @@ export default function Home() {
         >
           <div className="grid gap-5 md:grid-cols-[1.2fr_1fr_0.55fr]">
             <label className="field-label">
-              Target career
+              Career or keywords
               <input
                 value={career}
                 onChange={(event) => setCareer(event.target.value)}
-                placeholder="e.g. Software Engineer"
+                placeholder="e.g. Software Engineer, Rust, hackathon"
                 className="field-input"
               />
             </label>
@@ -291,7 +291,7 @@ export default function Home() {
               No strong matches yet
             </h3>
             <p className="mt-2 text-slate-500">
-              Try a larger radius or include another event format.
+              Try broader keywords, a larger radius, or another event format.
             </p>
           </div>
         )}
@@ -376,14 +376,16 @@ export default function Home() {
                       {item.organizer_name}
                     </p>
                   </div>
-                  <a
-                    href={item.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm font-bold text-teal hover:text-coral"
-                  >
-                    Event details <Icon name="arrow" />
-                  </a>
+                  {item.source_url && (
+                    <a
+                      href={item.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm font-bold text-teal hover:text-coral"
+                    >
+                      Event details <Icon name="arrow" />
+                    </a>
+                  )}
                 </div>
               </article>
             ))}
