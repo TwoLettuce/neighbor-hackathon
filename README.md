@@ -49,6 +49,25 @@ A real public iCal feed can be imported with:
 python backend/manage.py ingest_events --provider ical --feed-url https://example.org/events.ics
 ```
 
+Ticketmaster Discovery API v2 is the first real geographic discovery provider.
+Create a Ticketmaster developer application, set `TICKETMASTER_API_KEY` only in
+the backend environment, and run:
+
+```bash
+python backend/manage.py ingest_events \
+  --provider ticketmaster \
+  --location "Provo, UT" \
+  --radius 50 \
+  --days 90
+```
+
+The location is geocoded and sent as Ticketmaster's recommended `geoPoint`
+geohash. The command fetches upcoming events in ascending date order, paces
+requests conservatively, retries bounded transient failures, and stops before
+the API's 1,000-result deep-paging limit. Add `--max-pages 1` for a cheap smoke
+test or `--keyword "networking"` for an optional source-side filter. See
+`docs/providers/ticketmaster.md` for setup, mapping, and limitations.
+
 Only trusted, operator-configured feed URLs should be used. Meetup, Eventbrite, Luma, and Handshake commands are explicit stubs because their supported APIs do not provide unrestricted global public discovery. See `docs/providers/` for current capabilities and legitimate integration paths.
 
 ## Verification
@@ -77,7 +96,7 @@ The integration tests require the PostGIS service. Ranking, classification, dedu
 
 ## Current limitations
 
-Development geocoding recognizes Provo, Orem, Lehi, Draper, South Jordan, and Salt Lake City. iCal location strings are not yet geocoded automatically. There is no user authentication or personalization. Seed source URLs intentionally use `example.com`, and provider stubs require approved partner access before implementation.
+Development geocoding recognizes Provo, Orem, Lehi, Draper, South Jordan, and Salt Lake City. iCal location strings are not yet geocoded automatically. Ticketmaster is primarily a general live-entertainment source, so it may contain few professionally relevant events in a given area; those records are intentionally assigned low networking relevance. There is no user authentication or personalization. Seed source URLs intentionally use `example.com`, and provider stubs require approved partner access before implementation.
 
 ## Hackathon deployment
 
@@ -126,6 +145,8 @@ It does not seed or replace data.
    - `CORS_ALLOWED_ORIGINS`: the GitHub Pages origin, such as
      `https://<github-user>.github.io`. Do not include the repository path or a
      trailing slash.
+   - `TICKETMASTER_API_KEY`: Ticketmaster developer consumer key, required only
+     when running Ticketmaster ingestion.
 3. Deploy and confirm
    `https://<render-service>.onrender.com/api/health/` returns
    `{"status":"ok"`.
@@ -185,6 +206,7 @@ Configure on Render:
 - `DJANGO_DEBUG` — exactly `false`.
 - `DJANGO_ALLOWED_HOSTS` — comma-separated hostnames without schemes.
 - `CORS_ALLOWED_ORIGINS` — comma-separated browser origins with schemes.
+- `TICKETMASTER_API_KEY` — secret Ticketmaster developer consumer key.
 
 Configure as a GitHub Actions repository variable:
 

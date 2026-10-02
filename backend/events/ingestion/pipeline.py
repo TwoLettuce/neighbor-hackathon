@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
@@ -43,7 +44,7 @@ class EventIngestionPipeline:
                 stats.normalized += 1
                 result = self._persist(normalized)
                 setattr(stats, result, getattr(stats, result) + 1)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, ValidationError):
                 stats.failed += 1
         return stats
 
@@ -70,6 +71,7 @@ class EventIngestionPipeline:
                 description=item.description,
                 format_hint=item.format,
                 organizer_name=item.organizer_name,
+                source_categories=item.source_categories,
             )
         )
         fields = {

@@ -1,3 +1,5 @@
+import re
+
 from events.classifiers.base import EventClassifier
 from events.domain.types import EventClassification, EventClassificationInput
 from events.models import EventFormat
@@ -17,16 +19,25 @@ TOPICS = {
 
 class RuleBasedEventClassifier(EventClassifier):
     def classify(self, event: EventClassificationInput) -> EventClassification:
-        text = f" {event.title} {event.description} {event.organizer_name} ".lower()
+        text = (
+            f" {event.title} {event.description} {event.organizer_name} "
+            f"{' '.join(event.source_categories)} "
+        ).lower()
 
         careers = [
             slug
             for slug, definition in CAREER_TAXONOMY.items()
             if any(keyword in text for keyword in definition.keywords)
         ]
-        topics = [
+        inferred_topics = [
             topic for topic, keywords in TOPICS.items() if any(word in text for word in keywords)
         ]
+        source_topics = [
+            re.sub(r"[^a-z0-9]+", "_", category.lower()).strip("_")
+            for category in event.source_categories
+            if category.strip()
+        ]
+        topics = list(dict.fromkeys(inferred_topics + source_topics))
         event_format = self._format(text, event.format_hint)
         strength = self._networking_strength(text, event_format)
         attendee_types = self._attendees(careers, text)
@@ -78,7 +89,18 @@ class RuleBasedEventClassifier(EventClassifier):
             "q&a": 0.08,
             "recruiter": 0.12,
         }
-        negatives = {"prerecorded": -0.5, "on demand": -0.4, "lecture only": -0.2}
+        negatives = {
+            "prerecorded": -0.5,
+            "on demand": -0.4,
+            "lecture only": -0.2,
+            "concert": -0.45,
+            "music": -0.35,
+            "sports": -0.45,
+            "arts & theatre": -0.4,
+            "arts and theatre": -0.4,
+            "theater performance": -0.4,
+            "theatre performance": -0.4,
+        }
         score += sum(value for term, value in positives.items() if term in text)
         score += sum(value for term, value in negatives.items() if term in text)
         return round(max(0.0, min(1.0, score)), 2)

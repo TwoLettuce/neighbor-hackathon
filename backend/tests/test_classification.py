@@ -30,3 +30,33 @@ def test_prerecorded_tutorial_has_low_networking_strength() -> None:
     assert result.format == EventFormat.ASYNCHRONOUS
     assert result.networking_strength < 0.1
     assert not result.networking_relevant
+
+
+def test_entertainment_event_is_not_assumed_to_be_professional_networking() -> None:
+    result = RuleBasedEventClassifier().classify(
+        EventClassificationInput(
+            title="Utah Jazz Live",
+            description="An evening concert performance.",
+            format_hint=EventFormat.IN_PERSON,
+            source_categories=["Music", "Jazz"],
+        )
+    )
+
+    assert result.format == EventFormat.IN_PERSON
+    assert "music" in result.topics
+    assert result.networking_strength < 0.4
+    assert not result.networking_relevant
+
+
+def test_sports_event_is_not_assumed_to_be_professional_networking() -> None:
+    result = RuleBasedEventClassifier().classify(
+        EventClassificationInput(
+            title="Cougars vs Utes",
+            description="College football game.",
+            format_hint=EventFormat.IN_PERSON,
+            source_categories=["Sports", "Football"],
+        )
+    )
+
+    assert result.networking_strength < 0.4
+    assert not result.networking_relevant

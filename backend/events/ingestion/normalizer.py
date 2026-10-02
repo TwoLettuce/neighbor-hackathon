@@ -43,5 +43,6 @@ class EventNormalizer:
             state_region=raw.state_region.strip(),
             country=raw.country.upper(),
             location=location,
+            source_categories=list(dict.fromkeys(raw.source_categories)),
             raw_data=raw.raw_data,
         )

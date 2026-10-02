@@ -178,6 +178,12 @@ CORS_ALLOWED_ORIGINS = env_list(
 if not CORS_ALLOWED_ORIGINS:
     raise ImproperlyConfigured("CORS_ALLOWED_ORIGINS must be set when DJANGO_DEBUG=False")
 
+TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY", "")
+TICKETMASTER_API_BASE_URL = os.getenv(
+    "TICKETMASTER_API_BASE_URL",
+    "https://app.ticketmaster.com/discovery/v2/events.json",
+)
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True

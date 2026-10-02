@@ -28,6 +28,7 @@ class RawEvent:
     country: str = "US"
     latitude: float | None = None
     longitude: float | None = None
+    source_categories: list[str] = field(default_factory=list)
     raw_data: dict[str, Any] = field(default_factory=dict)
 
 
@@ -50,7 +51,8 @@ class NormalizedEvent:
     state_region: str
     country: str
     location: Point | None
-    raw_data: dict[str, Any]
+    source_categories: list[str] = field(default_factory=list)
+    raw_data: dict[str, Any] = field(default_factory=dict)
 
 
 class EventClassification(BaseModel):
@@ -69,3 +71,4 @@ class EventClassificationInput:
     description: str
     format_hint: str = ""
     organizer_name: str = ""
+    source_categories: list[str] = field(default_factory=list)
