@@ -10,6 +10,7 @@ from events.providers.base import (
 )
 from events.providers.ical import ICalProvider
 from events.providers.seed import SeedEventProvider
+from events.providers.ticketmaster import TicketmasterProvider
 
 
 class Command(BaseCommand):
@@ -19,11 +20,23 @@ class Command(BaseCommand):
         parser.add_argument(
             "--provider",
             default="seed",
-            choices=["seed", "ical", "meetup", "eventbrite", "luma", "handshake"],
+            choices=["seed", "ical", "ticketmaster", "meetup", "eventbrite", "luma", "handshake"],
         )
         parser.add_argument(
             "--feed-url",
             help="Preconfigured public HTTP(S) iCal URL (required for --provider ical)",
+        )
+        parser.add_argument(
+            "--city",
+            help="City filter (for Ticketmaster provider)",
+        )
+        parser.add_argument(
+            "--state",
+            help="State code filter e.g. UT (for Ticketmaster provider)",
+        )
+        parser.add_argument(
+            "--keyword",
+            help="Keyword query filter (for Ticketmaster provider)",
         )
 
     def handle(self, *args, **options) -> None:
@@ -34,6 +47,12 @@ class Command(BaseCommand):
             if not options["feed_url"]:
                 raise CommandError("--feed-url is required for the iCal provider")
             provider = ICalProvider(options["feed_url"])
+        elif provider_name == "ticketmaster":
+            provider = TicketmasterProvider(
+                city=options.get("city"),
+                state_code=options.get("state"),
+                keyword=options.get("keyword"),
+            )
         else:
             provider = {
                 "meetup": MeetupProvider,
