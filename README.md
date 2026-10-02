@@ -1,6 +1,6 @@
 # Job'n'Weave
 
-Job'n'Weave finds upcoming events where job seekers can build useful professional relationships. It ingests events ahead of time, normalizes and classifies them, stores them in PostGIS, then ranks local and interactive virtual events by career fit and networking potential.
+Job'n'Weave finds upcoming events where job seekers can build useful professional relationships. It combines provider ingestion with community-submitted events, normalizes and classifies them, stores them in PostGIS, then ranks local and interactive virtual events by keyword relevance, career fit, and networking potential.
 
 ## Stack
 
@@ -33,7 +33,61 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. Search for `Software Engineer`, `Provo, UT`, and `50 miles`. Django Admin is at <http://localhost:8000/admin/> and browsable OpenAPI documentation is at <http://localhost:8000/api/docs/>.
+Open <http://localhost:3000>. Search for `Software Engineer`, `Rust`, or `hackathon` near `Provo, UT`. Use **Add event** or open <http://localhost:3000/events/new/> to publish a community event. Django Admin is at <http://localhost:8000/admin/> and browsable OpenAPI documentation is at <http://localhost:8000/api/docs/>.
+
+## Community event submissions
+
+The public event form posts directly to Django and follows the same normalization,
+classification, deduplication, and persistence pipeline as provider events.
+Submissions:
+
+- are stored with the source provider `user_submitted`;
+- are automatically approved for the hackathon version;
+- validate titles, dates, URLs, formats, and in-person location fields;
+- reject obvious duplicates based on title, time, and location;
+- geocode supported Utah cities without asking users for coordinates; and
+- become eligible for the existing ranked search immediately.
+
+There is no user authentication yet, so submissions are anonymous. The event
+schema includes `APPROVED`, `PENDING`, and `REJECTED` statuses so moderation can
+be added without another redesign.
+
+The creation endpoint is:
+
+```text
+POST /api/events/
+```
+
+The existing discovery endpoint remains:
+
+```text
+GET /api/events/search/?career=Rust&location=Provo%2C%20UT&radius_miles=50
+```
+
+Despite the retained `career` API parameter name, the frontend field accepts
+careers, event titles, and keywords.
+
+## Search and ranking
+
+Search first limits events by approval status, format, geographic radius, and
+date. Live virtual events are not restricted by radius. Events with an end time
+remain searchable while in progress; events without one receive a three-hour
+in-progress window.
+
+Eligible events are ranked using:
+
+- direct, partial, and typo-tolerant query matching: 40%;
+- career taxonomy match: 25%;
+- networking strength: 10%;
+- distance: 8%;
+- topic match: 7%;
+- data quality: 5%; and
+- event timing: 5%.
+
+Exact title matches rank highest, searches such as `neighbor hack` can match
+`Neighbor Community Hackathon`, and small spelling errors are tolerated.
+Results with no keyword, career, or topic relevance are excluded rather than
+being surfaced solely because they are nearby.
 
 ## Ingestion
 
@@ -62,7 +116,13 @@ npm run typecheck
 npm run build
 ```
 
-The integration tests require the PostGIS service. Ranking, classification, deduplication, normalization, ingestion idempotency, API behavior, and geographic radius filtering are covered.
+The integration tests require the PostGIS service. If a remote test database
+already exists, use `pytest backend/tests --reuse-db`. Ranking, fuzzy and partial
+query matching, irrelevant-result filtering, community event creation,
+validation, duplicate rejection, classification, deduplication, normalization,
+ingestion idempotency, API behavior, and geographic radius filtering are
+covered. There is no separate frontend test framework; linting, strict
+TypeScript checks, and the production build verify the frontend.
 
 ## Project layout
 
@@ -72,12 +132,19 @@ The integration tests require the PostGIS service. Ranking, classification, dedu
 - `backend/events/deduplication/`: deterministic duplicate scoring
 - `backend/events/ranking/`: explainable ranking components
 - `backend/events/services/`: taxonomy, geocoding, and search orchestration
-- `frontend/`: search and ranked-results UI
+- `frontend/`: search, ranked-results, and community event submission UI
 - `docs/`: architecture, ranking, and provider constraints
 
 ## Current limitations
 
-Development geocoding recognizes Provo, Orem, Lehi, Draper, South Jordan, and Salt Lake City. iCal location strings are not yet geocoded automatically. There is no user authentication or personalization. Seed source URLs intentionally use `example.com`, and provider stubs require approved partner access before implementation.
+Development geocoding recognizes Provo, Orem, Lehi, Draper, South Jordan, and
+Salt Lake City. Community-submitted in-person events outside those fixtures are
+saved with nullable coordinates and will not pass radius searches until a
+production geocoder or text-location fallback is added. iCal location strings
+are not yet geocoded automatically. There is no user authentication,
+personalization, or moderation dashboard. Seed source URLs intentionally use
+`example.com`, and provider stubs require approved partner access before
+implementation.
 
 ## Hackathon deployment
 
