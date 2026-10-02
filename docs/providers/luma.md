@@ -15,6 +15,6 @@ Official documentation: <https://docs.luma.com/reference/getting-started-with-yo
   per organization key. Respect `429` with backoff.
 - Geographic search: no official global geo-search contract.
 
-Integrate calendars whose organizers authorize Neighbor, or consume an
+Integrate calendars whose organizers authorize Job'n'Weave, or consume an
 organizer's public iCal feed. Undocumented consumer discovery endpoints are not
 used as a production dependency.

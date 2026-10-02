@@ -25,7 +25,7 @@ class ICalProvider(EventProvider):
         response = requests.get(
             self.feed_url,
             timeout=20,
-            headers={"User-Agent": "NeighborEvents/1.0"},
+            headers={"User-Agent": "Job'n'WeaveEvents/1.0"},
         )
         response.raise_for_status()
         calendar = Calendar.from_ical(response.content)

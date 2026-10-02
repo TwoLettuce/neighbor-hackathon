@@ -8,7 +8,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Neighbor — Find career connections nearby",
+  title: "Job'n'Weave — Find career connections nearby",
   description:
     "Discover local events where you can build meaningful professional connections.",
 };

@@ -1,6 +1,6 @@
 # Architecture
 
-Neighbor separates collection from search:
+Job'n'Weave separates collection from search:
 
 ```text
 Public/provider feeds → provider adapters → RawEvent → normalization

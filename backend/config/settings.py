@@ -193,7 +193,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Neighbor Events API",
+    "TITLE": "Job'n'Weave Events API",
     "DESCRIPTION": "Ranked professional networking event discovery.",
     "VERSION": "1.0.0",
 }

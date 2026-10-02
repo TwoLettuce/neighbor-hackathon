@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: neighbor-api
+    name: Job&Weave-api
     runtime: docker
     plan: free
     dockerfilePath: ./backend/Dockerfile

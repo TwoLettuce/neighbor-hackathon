@@ -129,7 +129,7 @@ export default function Home() {
               N
             </span>
             <span className="font-serif text-xl font-semibold tracking-tight">
-              Neighbor
+              Job&Weave
             </span>
           </div>
           <span className="hidden text-sm text-white/60 sm:block">
@@ -385,7 +385,7 @@ export default function Home() {
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 text-sm text-slate-500 sm:flex-row sm:justify-between md:px-8">
           <p>
-            Neighbor aggregates events and sends you to the original source to
+            Job'n'Weave aggregates events and sends you to the original source to
             register.
           </p>
           <p>Scores indicate relevance—not probability.</p>
