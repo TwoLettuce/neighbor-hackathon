@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
@@ -27,6 +27,7 @@ class EventSearchService:
         end_date: date | None = None,
         formats: list[str] | None = None,
     ) -> list[dict]:
+        now = timezone.now()
         origin = self.geocoder.geocode(location)
         selected_formats = formats or [
             EventFormat.IN_PERSON,
@@ -35,10 +36,16 @@ class EventSearchService:
         ]
         query = (
             Event.objects.filter(
-                start_time__gte=timezone.now(),
                 networking_relevant=True,
                 format__in=selected_formats,
                 status=EventStatus.APPROVED,
+            )
+            .filter(
+                Q(end_time__gte=now)
+                | Q(
+                    end_time__isnull=True,
+                    start_time__gte=now - timedelta(hours=3),
+                )
             )
             .filter(
                 Q(location__distance_lte=(origin, D(mi=radius_miles)))
@@ -56,8 +63,17 @@ class EventSearchService:
         results = []
         for event in query:
             distance_miles = event.distance.mi if event.distance is not None else None
-            ranking = self.ranker.rank(event, target_careers, distance_miles, radius_miles)
-            if ranking.total_score < 0.3:
+            ranking = self.ranker.rank(
+                event,
+                target_careers,
+                distance_miles,
+                radius_miles,
+                query_text=career,
+            )
+            if (
+                max(ranking.query_match, ranking.career_match, ranking.topic_score) == 0
+                or ranking.total_score < 0.3
+            ):
                 continue
             source = next(iter(event.source_records.all()), None)
             results.append(

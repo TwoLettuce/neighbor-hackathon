@@ -135,3 +135,43 @@ def test_user_submitted_event_appears_in_existing_search() -> None:
     )
     assert result["source_provider"] == "user_submitted"
     assert result["source_url"] == "https://example.com/python-night"
+
+
+@pytest.mark.django_db
+def test_search_prioritizes_partial_title_and_typo_matches() -> None:
+    client = APIClient()
+    created = client.post("/api/events/", submission_payload(), format="json")
+
+    for query in ("Python Network", "Pyton Networkng"):
+        response = client.get(
+            "/api/events/search/",
+            {
+                "career": query,
+                "location": "Provo, UT",
+                "radius_miles": 10,
+                "formats": ["IN_PERSON"],
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.json()["events"][0]["id"] == created.json()["id"]
+        assert response.json()["events"][0]["score_breakdown"]["query_match"] >= 0.75
+
+
+@pytest.mark.django_db
+def test_search_does_not_return_irrelevant_events_for_unknown_query() -> None:
+    client = APIClient()
+    client.post("/api/events/", submission_payload(), format="json")
+
+    response = client.get(
+        "/api/events/search/",
+        {
+            "career": "zzzxqv",
+            "location": "Provo, UT",
+            "radius_miles": 10,
+            "formats": ["IN_PERSON"],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"count": 0, "events": []}
