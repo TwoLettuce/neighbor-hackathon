@@ -11,6 +11,12 @@ class EventFormat(models.TextChoices):
     OTHER = "OTHER", "Other"
 
 
+class EventStatus(models.TextChoices):
+    APPROVED = "APPROVED", "Approved"
+    PENDING = "PENDING", "Pending"
+    REJECTED = "REJECTED", "Rejected"
+
+
 class CareerField(models.Model):
     slug = models.SlugField(max_length=100, unique=True)
     name = models.CharField(max_length=120)
@@ -37,6 +43,12 @@ class Event(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     timezone = models.CharField(max_length=64, default="America/Denver")
     format = models.CharField(max_length=20, choices=EventFormat.choices, default=EventFormat.OTHER)
+    status = models.CharField(
+        max_length=20,
+        choices=EventStatus.choices,
+        default=EventStatus.APPROVED,
+        db_index=True,
+    )
 
     organizer_name = models.CharField(max_length=200, blank=True)
     organizer_url = models.URLField(blank=True)
@@ -81,7 +93,7 @@ class EventSourceRecord(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="source_records")
     provider = models.CharField(max_length=50)
     external_id = models.CharField(max_length=255)
-    source_url = models.URLField(max_length=500)
+    source_url = models.URLField(max_length=500, blank=True)
     raw_data = models.JSONField(default=dict)
     first_seen_at = models.DateTimeField()
     last_seen_at = models.DateTimeField()

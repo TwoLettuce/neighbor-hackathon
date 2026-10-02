@@ -23,6 +23,12 @@ class IngestionStats:
     failed: int = 0
 
 
+class DuplicateEventError(ValueError):
+    def __init__(self, event: Event) -> None:
+        self.event = event
+        super().__init__(f'A similar event already exists: "{event.title}".')
+
+
 class EventIngestionPipeline:
     def __init__(
         self,
@@ -41,14 +47,16 @@ class EventIngestionPipeline:
             try:
                 normalized = self.normalizer.normalize(raw)
                 stats.normalized += 1
-                result = self._persist(normalized)
+                _event, result = self.persist(normalized)
                 setattr(stats, result, getattr(stats, result) + 1)
             except (ValueError, TypeError):
                 stats.failed += 1
         return stats
 
     @transaction.atomic
-    def _persist(self, item: NormalizedEvent) -> str:
+    def persist(
+        self, item: NormalizedEvent, *, reject_duplicates: bool = False
+    ) -> tuple[Event, str]:
         now = timezone.now()
         source = (
             EventSourceRecord.objects.select_related("event")
@@ -60,6 +68,8 @@ class EventIngestionPipeline:
             result = "updated"
         else:
             event, _score = self.deduplicator.find_match(item)
+            if event and reject_duplicates:
+                raise DuplicateEventError(event)
             result = "matched" if event else "created"
             if event is None:
                 event = Event(first_seen_at=now, last_seen_at=now)
@@ -116,7 +126,7 @@ class EventIngestionPipeline:
                 first_seen_at=now,
                 last_seen_at=now,
             )
-        return result
+        return event, result
 
     @staticmethod
     def _career_fields(slugs: list[str]) -> list[CareerField]:

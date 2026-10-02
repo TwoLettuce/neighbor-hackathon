@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 
 from events.models import EventFormat
 from events.serializers import (
+    EventCreatedSerializer,
+    EventCreateSerializer,
     EventResultSerializer,
     EventSearchQuerySerializer,
     EventSearchResponseSerializer,
@@ -16,6 +18,22 @@ from events.services.search import EventSearchService
 
 def health_check(request: HttpRequest) -> JsonResponse:
     return JsonResponse({"status": "ok"})
+
+
+class EventCreateView(APIView):
+    @extend_schema(
+        summary="Submit a community networking event",
+        request=EventCreateSerializer,
+        responses={201: EventCreatedSerializer},
+    )
+    def post(self, request) -> Response:
+        serializer = EventCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        event = serializer.save()
+        return Response(
+            EventCreatedSerializer(event).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class EventSearchView(APIView):

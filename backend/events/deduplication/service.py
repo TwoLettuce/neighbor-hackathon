@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from datetime import timedelta
 from difflib import SequenceMatcher
 
-from django.contrib.gis.geos import Point
-
 from events.domain.types import NormalizedEvent
 from events.models import Event
 
@@ -39,7 +37,7 @@ class EventDeduplicator:
         title = _similarity(candidate.title, event.title)
         delta_seconds = abs((candidate.start_time - event.start_time).total_seconds())
         time = max(0.0, 1.0 - delta_seconds / (3 * 60 * 60))
-        location = self._location_similarity(candidate.location, event.location)
+        location = self._location_similarity(candidate, event)
         organizer = _similarity(candidate.organizer_name, event.organizer_name)
         total = title * 0.4 + time * 0.25 + location * 0.2 + organizer * 0.15
         return DeduplicationResult(round(total, 4), title, time, location, organizer)
@@ -63,9 +61,21 @@ class EventDeduplicator:
         return None, best_result
 
     @staticmethod
-    def _location_similarity(left: Point | None, right: Point | None) -> float:
-        if left is None or right is None:
-            return 0.0
-        # GEOS distance is degrees for SRID 4326; sufficient for a bounded comparison.
-        miles = left.distance(right) * 69.0
-        return max(0.0, 1.0 - miles / 10.0)
+    def _location_similarity(candidate: NormalizedEvent, event: Event) -> float:
+        if candidate.location is not None and event.location is not None:
+            # GEOS distance is degrees for SRID 4326; sufficient for a bounded comparison.
+            miles = candidate.location.distance(event.location) * 69.0
+            return max(0.0, 1.0 - miles / 10.0)
+
+        candidate_text = " ".join(
+            (
+                candidate.venue_name,
+                candidate.address,
+                candidate.city,
+                candidate.state_region,
+            )
+        )
+        event_text = " ".join(
+            (event.venue_name, event.address, event.city, event.state_region)
+        )
+        return _similarity(candidate_text, event_text)
