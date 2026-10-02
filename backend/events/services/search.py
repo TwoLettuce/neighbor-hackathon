@@ -6,7 +6,7 @@ from django.contrib.gis.measure import D
 from django.db.models import Q
 from django.utils import timezone
 
-from events.models import Event, EventFormat
+from events.models import Event, EventFormat, EventStatus
 from events.ranking import EventRanker
 from events.services.geocoding import GeocodingService
 from events.services.taxonomy import resolve_career
@@ -38,6 +38,7 @@ class EventSearchService:
                 start_time__gte=timezone.now(),
                 networking_relevant=True,
                 format__in=selected_formats,
+                status=EventStatus.APPROVED,
             )
             .filter(
                 Q(location__distance_lte=(origin, D(mi=radius_miles)))

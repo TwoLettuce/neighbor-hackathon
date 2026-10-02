@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 type EventResult = {
@@ -132,9 +133,17 @@ export default function Home() {
               Job&Weave
             </span>
           </div>
-          <span className="hidden text-sm text-white/60 sm:block">
-            Career connections, closer to home.
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="hidden text-sm text-white/60 md:block">
+              Career connections, closer to home.
+            </span>
+            <Link
+              href="/events/new"
+              className="rounded-lg border border-white/20 px-4 py-2 text-sm font-bold transition hover:border-mint/60 hover:text-mint"
+            >
+              Add event
+            </Link>
+          </div>
         </nav>
         <div className="mx-auto max-w-6xl px-5 pb-16 pt-12 md:px-8 md:pb-24 md:pt-20">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-mint">
@@ -385,7 +394,7 @@ export default function Home() {
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 text-sm text-slate-500 sm:flex-row sm:justify-between md:px-8">
           <p>
-            Job'n'Weave aggregates events and sends you to the original source to
+            Job&apos;n&apos;Weave aggregates events and sends you to the original source to
             register.
           </p>
           <p>Scores indicate relevance—not probability.</p>

@@ -24,7 +24,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -58,6 +59,12 @@ select {
 .field-input:focus {
   border-color: #176b64;
   box-shadow: 0 0 0 3px rgb(23 107 100 / 10%);
+}
+
+.field-input:disabled {
+  cursor: not-allowed;
+  background: #f1f5f4;
+  color: #94a3b8;
 }
 
 .eyebrow {

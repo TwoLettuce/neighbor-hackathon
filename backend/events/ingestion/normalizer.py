@@ -10,7 +10,7 @@ class EventNormalizer:
         title = " ".join(raw.title.split())
         if not title:
             raise ValueError("Event title is required")
-        if not raw.source_url.startswith(("https://", "http://")):
+        if raw.source_url and not raw.source_url.startswith(("https://", "http://")):
             raise ValueError("Event source URL must use HTTP(S)")
 
         start = raw.start_time
